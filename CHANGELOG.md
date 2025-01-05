@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/jacob-cabral/autover/compare/v1.0.0...v1.1.0) (2025-01-05)
+
+
+### Features
+
+* create dist asset ([f47498a](https://github.com/jacob-cabral/autover/commit/f47498a091671a4d4b60426709c667281410c41e))
+
 # 1.0.0 (2025-01-05)
 
 
