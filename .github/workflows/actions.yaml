@@ -49,6 +49,12 @@ jobs:
         run: |
           sed -i "s/^version: .*/version: ${{ env.NEW_VERSION }}/" Chart.yaml
 
+      # Create the dist asset
+      - name: Create the dist asset
+        run: |
+          mkdir --parents dist
+          echo "The asset version is ${{ env.NEW_VERSION }}." > "dist/asset-${{ env.NEW_VERSION }}.txt"
+
       # Create GitHub tag with Semantic Release
       - name: Run Semantic Release (Tag Creation)
         env:
