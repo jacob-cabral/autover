@@ -1,0 +1,57 @@
+name: Semantic Versioning and Release
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  release:
+    name: Semantic Release and Attach Helm Chart to GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      # Checkout the repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # Set up Node.js (required for semantic-release)
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      # Install dependencies
+      - name: Install Dependencies
+        run: npm install
+
+      # Run Semantic Release to determine the version
+      - name: Run Semantic Release (Version Check)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release --dry-run | tee release_output.txt
+          echo "NEW_VERSION=$(grep -oP '(?<=The next release version is )\S+' release_output.txt)" >> $GITHUB_ENV
+      
+      # Fail if the NEW_VERSION is empty
+      - name: Ensure non empty version
+        run: |
+          if [ -z "${{ env.NEW_VERSION }}" ]
+          then
+            echo "Error. The version cannot be empty."
+            exit 1
+          fi
+
+      # Update Chart.yaml with the new version
+      - name: Update the Chart.yaml version
+        run: |
+          sed -i "s/^version: .*/version: ${{ env.NEW_VERSION }}/" Chart.yaml
+
+      # Create GitHub tag with Semantic Release
+      - name: Run Semantic Release (Tag Creation)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx semantic-release
